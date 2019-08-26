@@ -10,13 +10,14 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-/*
-$this->get('/', function () {
-    return File::get(public_path() . '/projeto-base/index.html');
-});
-*/
 
+$this->get('/', function () {
+    return File::get(public_path() . '/js/index.html');
+});
+
+
+/*
 $this->get('/', function () {
     return view('abc');
 });
-
+*/
