@@ -1,10 +1,11 @@
 <?php
 
-namespace App;
+namespace App\Model\Sistema;
 
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\ModelPadrao;
 
 class PerfilFuncionalidadeAcao extends Model
 {
@@ -60,5 +61,22 @@ class PerfilFuncionalidadeAcao extends Model
         }
         
         return $perfil;
+    }
+
+    public static function salvaLista($listaFuncionalidades, $perfilId) {
+        foreach($listaFuncionalidades as $funcionalidade) {
+            DB::table((new PerfilFuncionalidadeAcao)->getTable())
+                ->where('perfil_id', '=', $perfilId)
+                ->where('funcionalidade_id', '=', $funcionalidade['id'])
+                ->delete();
+
+            foreach($funcionalidade['acoesSelecionadas'] as $acao) {
+                $perfilFuncionalidadeAcao['perfil_id'] = $perfilId;
+                $perfilFuncionalidadeAcao['funcionalidade_id'] = $funcionalidade['id'];
+                $perfilFuncionalidadeAcao['acao_id'] = $acao['id'];
+
+                ModelPadrao::salvar($perfilFuncionalidadeAcao, new PerfilFuncionalidadeAcao());
+            }
+        }
     }
 }

@@ -24,6 +24,9 @@ $this->resource('acoes', 'Sistema\AcaoController')->middleware('auth:api');
 $this->get('autorizacao/{funcionalidade}', 'Sistema\PerfilController@verificaAutorizacao')->middleware('auth:api');
 $this->get('perfildadosdominio', 'Sistema\PerfilController@dadosDominio')->middleware('auth:api');
 $this->get('acaodadosdominio', 'Sistema\AcaoController@dadosDominio')->middleware('auth:api');
+$this->get('funcionalidadescomacoes', 'Sistema\FuncionalidadeController@funcionalidadesComAcoes')->middleware('auth:api');
+
+
 $this->post('listafuncionalidades', 'Sistema\FuncionalidadeController@salvaListaFuncionalidades')->middleware('auth:api');
 
 $this->resource('criarusuario', 'CadastroUsuarioController');

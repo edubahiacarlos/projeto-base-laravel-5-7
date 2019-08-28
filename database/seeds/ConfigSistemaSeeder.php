@@ -3,14 +3,14 @@
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use App\User;
-use App\Perfil;
-use App\PerfilUsuario;
-use App\Acao;
-use App\Funcionalidade;
-use App\FuncionalidadeAcao;
-use App\PerfilFuncionalidadeAcao;
+use App\Model\Sistema\Perfil;
+use App\Model\Sistema\PerfilUsuario;
+use App\Model\Sistema\Acao;
+use App\Model\Sistema\Funcionalidade;
+use App\Model\Sistema\FuncionalidadeAcao;
+use App\Model\Sistema\PerfilFuncionalidadeAcao;
 
-class UserSeeder extends Seeder
+class ConfigSistemaSeeder extends Seeder
 {
 
     public function __construct() {
@@ -48,7 +48,7 @@ class UserSeeder extends Seeder
             $usuario->cpf = '81608250563';
             $usuario->email = 'edubahia.carlos@hotmail.com';
             $usuario->password = bcrypt(123456);
-            $usuario = $usuario->save();
+            $usuario->save();
         }
 
         return $usuario;
@@ -64,7 +64,7 @@ class UserSeeder extends Seeder
            $perfil = new Perfil();
            $perfil->nome = 'Administrador';
            $perfil->slug = 'administrador';
-           $perfil = $perfil->save();
+           $perfil->save();
        }
 
        return $perfil;
@@ -81,7 +81,7 @@ class UserSeeder extends Seeder
            $perfilUsuario = new PerfilUsuario();
            $perfilUsuario->usuario_id = $usuarioId;
            $perfilUsuario->perfil_id = $perfilId;
-           $perfilUsuario = $perfilUsuario->save();
+           $perfilUsuario->save();
        }
 
        return $perfilUsuario;

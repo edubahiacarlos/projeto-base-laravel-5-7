@@ -4,9 +4,14 @@ namespace App\Http\Controllers\Sistema;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Perfil;
+use App\Model\Sistema\Perfil;
+use App\Model\Sistema\Funcionalidade;
+use App\Model\Sistema\Acao;
+use App\Model\Sistema\Config;
+use App\Model\Sistema\PerfilFuncionalidadeAcao;
+
+
 use App\User;
-use App\PerfilFuncionalidadeAcao;
 use App\ModelPadrao;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -20,13 +25,18 @@ class PerfilController extends Controller
     }
     
     public function index(Request $request) {
-        return Perfil::buscaTodosPerfisPorPagina(10);
+        return Perfil::buscaTodosPerfisPorPagina(Config::itensPorPagina);
     }
 
     public function show($id) {
    
         try {
-            return response()->json(Perfil::buscaPerfilPorId($id));
+            $perfil = Perfil::buscaPerfilPorId($id);
+            $perfil->funcionalidades = Funcionalidade::buscaTodasFuncionalidades();
+            $perfil->funcionalidades = Acao::acoesSelecionadasDasFuncionalidadesPorPerfil($perfil->funcionalidades, $id);
+            $perfil->funcionalidades = Acao::acoesPorFuncionalidades($perfil->funcionalidades);
+            
+            return response()->json($perfil);
         } catch (Exception $e) {
             return response()->json(['erro' => $e->getMessage()], 422);
         }
@@ -39,85 +49,31 @@ class PerfilController extends Controller
         } catch (Exception $e) {
             return response()->json(['erro' => $e->getMessage()], 422);
         }
-        
     }
 
-    function sanitizeString($str) {
-        $str = preg_replace('/[áàãâä]/ui', 'a', $str);
-        $str = preg_replace('/[éèêë]/ui', 'e', $str);
-        $str = preg_replace('/[íìîï]/ui', 'i', $str);
-        $str = preg_replace('/[óòõôö]/ui', 'o', $str);
-        $str = preg_replace('/[úùûü]/ui', 'u', $str);
-        $str = preg_replace('/[ç]/ui', 'c', $str);
-        // $str = preg_replace('/[,(),;:|!"#$%&/=?~^><ªº-]/', '_', $str);
-        $str = preg_replace('/[^a-z0-9]/i', '_', $str);
-        $str = preg_replace('/_+/', '_', $str); // ideia do Bacco :)
-        return strtolower($str);
+    public function salvar(Request $request, $mensagem) {
+        try {
+            DB::beginTransaction();
+            $perfil = $request->input();
+            $perfil['slug'] = Config::criaSlug($perfil['nome']);
+            $funcionalidades = $perfil['funcionalidades'];
+
+            $perfil = ModelPadrao::salvar($perfil, new Perfil());
+            PerfilFuncionalidadeAcao::salvaLista($funcionalidades, $perfil->id);
+            DB::commit();
+            return response()->json(['mensagem' => $mensagem, 'perfil' => $perfil ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['erro' => $e->getMessage()], 422);
+        }
     }
 
     public function store(Request $request){
-        $perfil = $request->input();
-
-        $funcionalidades = $perfil['funcionalidades'];
-
-        $perfil['slug'] = $this->sanitizeString($perfil['nome']);
-      
-        $perfil = ModelPadrao::salvar($perfil, new Perfil());
-       
-        foreach($funcionalidades as $funcionalidade) {
-            DB::table('perfil_funcionalidade_acao')
-                ->where('perfil_id', '=', $perfil->id)
-                ->where('funcionalidade_id', '=', $funcionalidade['id'])
-                ->delete();
-
-         //   dd($funcionalidade['acoesSelecionadas']);
-            foreach($funcionalidade['acoesSelecionadas'] as $acao) {
-                $perfilFuncionalidadeAcao['perfil_id'] = $perfil['id'];
-                $perfilFuncionalidadeAcao['funcionalidade_id'] = $funcionalidade['id'];
-                $perfilFuncionalidadeAcao['acao_id'] = $acao['id'];
-
-                ModelPadrao::salvar($perfilFuncionalidadeAcao, new PerfilFuncionalidadeAcao());
-            }
-        }
-
-        try {
-            return response()->json(['mensagem' => 'Perfil salva com sucesso', 'perfil' => $perfil ]);
-        } catch (Exception $e) {
-            return response()->json(['erro' => $e->getMessage()], 422);
-        }
+        $this->salvar($request, 'Perfil salvo com sucesso');  
     }
 
     public function update(Request $request) {
-     
-        $perfil = $request->input();
-
-        $funcionalidades = $perfil['funcionalidades'];
-
-        $perfil['slug'] = $this->sanitizeString($perfil['nome']);
-      
-        $perfil = ModelPadrao::salvar($perfil, new Perfil());
-
-        foreach($funcionalidades as $funcionalidade) {
-            DB::table('perfil_funcionalidade_acao')
-                ->where('perfil_id', '=', $perfil->id)
-                ->where('funcionalidade_id', '=', $funcionalidade['id'])
-                ->delete();
-
-         //   dd($funcionalidade['acoesSelecionadas']);
-            foreach($funcionalidade['acoesSelecionadas'] as $acao) {
-                $perfilFuncionalidadeAcao['perfil_id'] = $perfil['id'];
-                $perfilFuncionalidadeAcao['funcionalidade_id'] = $funcionalidade['id'];
-                $perfilFuncionalidadeAcao['acao_id'] = $acao['id'];
-
-                ModelPadrao::salvar($perfilFuncionalidadeAcao, new PerfilFuncionalidadeAcao());
-            }
-        }
-
-        try {
-            return response()->json(['mensagem' => 'Perfil atualizada com sucesso', 'perfil' => $perfil ]);
-        } catch (Exception $e) {
-            return response()->json(['erro' => $e->getMessage()], 422);
-        }
+        $this->salvar($request, 'Perfil atualizado com sucesso');
     }
 
     public function verificaAutorizacao($funcionalidade) {

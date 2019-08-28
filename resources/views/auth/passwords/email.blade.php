@@ -36,7 +36,7 @@
                     Prezado(a) {{ $usuario->name }}.<br>
                     Para mudar sua senha, clique no link abaixo.<br>
                     <a  target="_blank"
-                        href="{{ $url . 'alterarsenha?hash=' . $hash . '&email=' . $usuario->email }}">
+                        href="{{ $url . '#/alterarsenha?hash=' . $hash . '&email=' . $usuario->email }}">
                         <strong>Mudar Senha.</strong><br>
                     </a>
                     {{ $url . 'alterarsenha?hash=' . $hash . '&email=' . $usuario->email }}

@@ -1,10 +1,11 @@
 <?php
 
-namespace App;
+namespace App\Model\Sistema;
 
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\ModelPadrao;
 
 class Funcionalidade extends Model
 {
@@ -30,6 +31,14 @@ class Funcionalidade extends Model
                                 ->paginate($quantidadePorPagina);
     }
 
+    public static function buscaTodasFuncionalidades() {
+        return DB::table((new Funcionalidade)->getTable())
+                ->select((new Funcionalidade)->getFillable())
+                ->addSelect('id')
+                ->orderBy('nome', 'asc')
+                ->get()->toArray();
+    }
+
     public static function buscarFuncionalidadePorId(int $funcionalidadeId){
         return DB::table(( new Funcionalidade)->getTable())
                     ->where('id', '=', $funcionalidadeId)
@@ -50,7 +59,6 @@ class Funcionalidade extends Model
             $dados['slug'] = $funcionalidade['slug'];
             $dados['nome'] = $funcionalidade['nome'];
             ModelPadrao::salvar($dados, new Funcionalidade());
-
         }
     }
 }
