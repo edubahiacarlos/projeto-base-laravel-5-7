@@ -19,6 +19,6 @@ $this->get('/', function () {
 
 
 $this->get('/', function () {
-    return view('abc');
+    return view('principal');
 });
 
