@@ -11,14 +11,9 @@
 |
 */
 
+
 /*
-$this->get('/', function () {
-    return File::get(public_path() . '/js/index.html');
-});
-*/
-
-
 $this->get('/', function () {
     return view('principal');
 });
-
+*/
