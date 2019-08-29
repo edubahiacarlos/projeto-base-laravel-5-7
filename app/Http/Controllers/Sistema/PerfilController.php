@@ -29,7 +29,6 @@ class PerfilController extends Controller
     }
 
     public function show($id) {
-   
         try {
             $perfil = Perfil::buscaPerfilPorId($id);
             $perfil->funcionalidades = Funcionalidade::buscaTodasFuncionalidades();

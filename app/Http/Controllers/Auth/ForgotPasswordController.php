@@ -52,9 +52,7 @@ class ForgotPasswordController extends Controller
             return response()->json(['mensagem' => 'Erro interno. Entre em contato com o administrador'], 500);
         }
 
-        $url = 'https://edubahiacarlos.herokuapp.com/';
-        //$request->get('urlAPI')
-        Mail::send('auth.passwords.email', ['hash' => $token, 'usuario' => $user, 'url' => $url], function ($m) use ($user) {
+        Mail::send('auth.passwords.email', ['hash' => $token, 'usuario' => $user, 'url' => $request->get('urlAPI')], function ($m) use ($user) {
             $m->from('edubahia.carlos@hotmail.com', 'Sistema ABC');
 
             $m->to($user->email, $user->name)->subject('Alterar Senha');

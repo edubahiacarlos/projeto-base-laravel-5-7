@@ -20,7 +20,6 @@ class AuthController extends Controller
     // Autenticação padrão, porém com o JWT.
     public function login(Request $request)
     {
-
         $this->validacao($request);
         $credentials = $request->only(['email', 'password']);
         //dd($credentials);
