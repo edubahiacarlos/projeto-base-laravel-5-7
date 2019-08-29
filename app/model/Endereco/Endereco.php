@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Model\Endereco;
 
 
 use Illuminate\Database\Eloquent\Model;

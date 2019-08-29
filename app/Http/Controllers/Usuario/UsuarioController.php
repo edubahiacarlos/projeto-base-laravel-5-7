@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Usuario;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Endereco;
+use App\Model\Endereco\Endereco;
 use App\User;
-use App\Perfil;
-use App\PerfilUsuario;
+use App\Model\Sistema\Perfil;
+use App\Model\Sistema\PerfilUsuario;
 use App\ModelPadrao;
+use Illuminate\Support\Facades\DB;
 
 class UsuarioController extends Controller
 {
@@ -36,60 +37,51 @@ class UsuarioController extends Controller
 
     public function destroy($id) {
         try {
+            DB::beginTransaction();
             Endereco::where('usuario_id', '=', $id)->delete();
+            PerfilUsuario::where('usuario_id', '=', $id)->delete();
             User::where('id', '=', $id)->delete();
+            DB::commit();
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json(['erro' => $e->getMessage()], 422);
         }
         
     }
 
-    public function store(Request $request){
-        $usuario = $request->input();
-        $usuario['password'] = bcrypt(123);
-
-        $usuario = ModelPadrao::salvar($usuario, new User());
-       
-        $dadosPerfil['usuario_id'] = $usuario['id'];
-        $dadosPerfil['perfil_id'] = $atualizarUsuario['perfil']['id'];
-
-        PerfilUsuario::where('usuario_id', '=', $usuario['id'])->delete();
-        ModelPadrao::salvar($dadosPerfil, new PerfilUsuario());
-
-        $endereco = $request->input()['endereco'];
-        $endereco['usuario_id'] = $usuario->id;
-       
-        ModelPadrao::salvar($endereco, new Endereco());
-
+    public function salvar($usuario, $mensagem) {
         try {
-            return response()->json(['mensagem' => 'Usuário salvo com sucesso', 'usuario' => $usuario ]);
+            DB::beginTransaction();
+            $dadosPerfil['perfil_id'] = $usuario['perfil']['id'];
+            $endereco = $usuario['endereco'];
+
+            $usuario = ModelPadrao::salvar($usuario, new User());
+            $dadosPerfil['usuario_id'] = $usuario['id'];
+
+            PerfilUsuario::where('usuario_id', '=', $usuario['id'])->delete();
+            ModelPadrao::salvar($dadosPerfil, new PerfilUsuario());
+
+            $endereco['usuario_id'] = $usuario->id;
+        
+            ModelPadrao::salvar($endereco, new Endereco());
+            DB::commit();
+            return response()->json(['mensagem' => $mensagem, 'usuario' => $usuario ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json(['erro' => $e->getMessage()], 422);
         }
     }
 
+    public function store(Request $request){
+        $usuario = $request->input();
+        $usuario['endereco'] = $request->input()['endereco'];
+        $usuario['password'] = bcrypt($usuario['cpf']);
+        $this->salvar($usuario, 'Usuário salvo com sucesso');  
+    }
+
     public function update(Request $request) {
-     
-        $atualizarUsuario = $request->input();
-      
-        //dd($atualizarUsuario);
-        $usuario = ModelPadrao::salvar($atualizarUsuario, new User());
-
-        $dadosPerfil['usuario_id'] = $usuario['id'];
-        $dadosPerfil['perfil_id'] = $atualizarUsuario['perfil']['id'];
-
-        PerfilUsuario::where('usuario_id', '=', $usuario['id'])->delete();
-        ModelPadrao::salvar($dadosPerfil, new PerfilUsuario());
-
-        $atualizarEndereco = $atualizarUsuario['endereco'];
-        $atualizarEndereco['usuario_id'] = $usuario->id;
-
-        ModelPadrao::salvar($atualizarEndereco, new Endereco());
-
-        try {
-            return response()->json(['mensagem' => 'Usuário atualizado com sucesso', 'usuario' => $usuario ]);
-        } catch (Exception $e) {
-            return response()->json(['erro' => $e->getMessage()], 422);
-        }
+        $usuario = $request->input();
+        $usuario['endereco'] = $request->input()['endereco'];
+        $this->salvar($usuario, 'Usuário atualizado salvo com sucesso'); 
     }
 }

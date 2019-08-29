@@ -85,8 +85,4 @@ class User extends Authenticatable implements JWTSubject
                     ->addSelect('id')
                     ->first();
     }
-
-    public function endereco() {
-        return $this->hasOne('App\Endereco', 'usuario_id', 'id');
-    }
 }
