@@ -12,26 +12,49 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
- 
 
-$this->resource('endereco', 'EnderecoController')->middleware('auth:api');
-$this->resource('lucropresumido', 'LucroPresumidoController')->middleware('auth:api');
-$this->resource('usuarios', 'Usuario\UsuarioController')->middleware('auth:api');
-$this->resource('funcionalidades', 'Sistema\FuncionalidadeController')->middleware('auth:api');
-$this->resource('perfis', 'Sistema\PerfilController')->middleware('auth:api');
-$this->resource('acoes', 'Sistema\AcaoController')->middleware('auth:api');
+$this->group(['prefix' => 'v1'], function () {
 
-$this->get('autorizacao/{funcionalidade}', 'Sistema\PerfilController@verificaAutorizacao')->middleware('auth:api');
-$this->get('perfildadosdominio', 'Sistema\PerfilController@dadosDominio')->middleware('auth:api');
-$this->get('acaodadosdominio', 'Sistema\AcaoController@dadosDominio')->middleware('auth:api');
-$this->get('funcionalidadescomacoes', 'Sistema\FuncionalidadeController@funcionalidadesComAcoes')->middleware('auth:api');
+    /*
+    | Acesso autenticado e autorizado
+    */
+    $this->group([ 'middleware' => ['auth:api', 'autorizado']], function () {
+        $this->resource('usuario', 'Usuario\UsuarioController');
+        $this->resource('funcionalidade', 'Sistema\FuncionalidadeController');
+        $this->resource('perfil', 'Sistema\PerfilController');
+        $this->resource('acao', 'Sistema\AcaoController');
+    });
+    /*
+    | Fim dos Middlewares auth:api e autorizado
+    */
+
+    /*
+    | Acesso autenticado
+    */
+    $this->group([ 'middleware' => ['auth:api']], function () {
+        $this->get('autorizacao/{funcionalidade}', 'Sistema\PerfilController@verificaAutorizacao')->middleware('auth:api');
+        $this->get('perfildadosdominio', 'Sistema\PerfilController@dadosDominio')->middleware('auth:api');
+        $this->get('acaodadosdominio', 'Sistema\AcaoController@dadosDominio')->middleware('auth:api');
+        $this->get('funcionalidadescomacoes', 'Sistema\FuncionalidadeController@funcionalidadesComAcoes');
 
 
-$this->post('listafuncionalidades', 'Sistema\FuncionalidadeController@salvaListaFuncionalidades')->middleware('auth:api');
+        $this->post('listafuncionalidades', 'Sistema\FuncionalidadeController@salvaListaFuncionalidades')->middleware('autorizado');
 
-$this->resource('criarusuario', 'CadastroUsuarioController');
+        $this->resource('criarusuario', 'CadastroUsuarioController');
 
 //$this->post('alterar', 'Auth\ForgotPasswordController@sendResetLinkEmail');
+    });
+    /*
+    | Fim do middleware auth:api
+    */
+
+});
+
+
+
+
+
+
 
 
 Route::group(['prefix' => 'auth'], function () {
