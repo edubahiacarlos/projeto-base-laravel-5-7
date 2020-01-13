@@ -22,19 +22,31 @@ class AuthController extends Controller
     {
         $this->validacao($request);
         $credentials = $request->only(['email', 'password']);
+		$credentials['password'] = base64_decode($credentials['password']);
+		
         //dd($credentials);
         if (! $token = JWTAuth::attempt($credentials)) {
             
-            return response()->json(['status' => 401, 'mensagem' => 'Credenciais Inválidas!'], 401);
+            return response()->json(['code' => 401, 'message' => 'Credenciais Inválidas!'], 401);
         }
 		
-        return response()->json([
+		return response()->json([
+            'code' => 200,
+			'message' => 'Usuário logado no sistema!',
+			'detailedMessage' => 'Teste',
+			'usuarioLogado' => Auth::user(),
+			'controleAcesso' => Perfil::teste(Auth::user()->id),
+            'token' => 'Bearer ' . $token
+            
+        ]);
+		
+   /*     return response()->json([
             'status' => 200,
-			'mensagem' => 'Usuário logado no sistema!',
+			'message' => 'Usuário logado no sistema!',
             'usuarioLogado' => Auth::user(),
             'controleAcesso' => Perfil::teste(Auth::user()->id),
             'token' => 'Bearer ' . $token
-        ]);
+        ]);*/
     }
     // Renovação de Token
     public function refresh()

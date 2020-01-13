@@ -70,8 +70,9 @@ return [
     | transport layer security protocol should provide great security.
     |
     */
-
-    'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+	
+	//Voltar versão
+    'encryption' => env('MAIL_ENCRYPTION', ''), //'tls'
 
     /*
     |--------------------------------------------------------------------------

@@ -49,17 +49,17 @@ class ResetPasswordController extends Controller
         );
        
         if ($response == 'passwords.token') {
-            return response()->json(['mensagem' => 'Token expirado'], 400);
+            return response()->json(['message' => 'Token expirado'], 400);
         }
 
         if ($response == 'passwords.user') {
-            return response()->json(['mensagem' => 'Email não cadastrado'], 400);
+            return response()->json(['message' => 'Email não cadastrado'], 400);
         }
 
         if ($response == 'passwords.password') {
-            return response()->json(['mensagem' => 'As senhas não são iguais'], 400);
+            return response()->json(['message' => 'As senhas não são iguais'], 400);
         }
 
-        return response()->json(['mensagem' => 'Senha Alterada com sucesso'], 200);
+        return response()->json(['message' => 'Senha Alterada com sucesso'], 204);
     }
 }

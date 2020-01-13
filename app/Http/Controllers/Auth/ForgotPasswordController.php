@@ -43,22 +43,22 @@ class ForgotPasswordController extends Controller
         $user = User::where('email', '=', $email)->first();
 
         if (!$user || !$user->email) {
-            return response()->json(['mensagem' => 'Email não cadastrado'], 404);
+            return response()->json(['message' => 'Email não cadastrado'], 400);
         }
 
         $token = app('auth.password.broker')->createToken($user);
 
         if (!$token) {
-            return response()->json(['mensagem' => 'Erro interno. Entre em contato com o administrador'], 500);
+            return response()->json(['message' => 'Erro interno. Entre em contato com o administrador'], 500);
         }
 
-        Mail::send('auth.passwords.email', ['hash' => $token, 'usuario' => $user, 'url' => $request->get('urlAPI')], function ($m) use ($user) {
-            $m->from('edubahia.carlos@hotmail.com', 'Sistema ABC');
+        Mail::send('auth.passwords.email', ['hash' => $token, 'usuario' => $user, 'url' => 'http://localhost:4200/'], function ($m) use ($user) {
+            $m->from('naoresponda@sistema.com.br', 'Sistema ABC');
 
             $m->to($user->email, $user->name)->subject('Alterar Senha');
         });
         
-        return response()->json(['mensagem' => 'Email enviado para ' . $user->email]);
+        return response()->json(['mensagem' => 'Email enviado para ' . $user->email], 204);
     }
 
     public function broker()

@@ -5,12 +5,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Laravel</title>
-
+		
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+		
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
         <link href="{!! asset('css/app.scss') !!}" media="all" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="{{ URL::asset('css/app.css') }}">
        
+	   
+	  
     <style>
         /*!
         * Bootstrap v4.1.3 (https://getbootstrap.com/)
@@ -37,10 +41,9 @@
                     Para mudar sua senha, clique no link abaixo.<br>
                     <a  target="_blank"
                         href="{{ $url . '#/alterarsenha?hash=' . $hash . '&email=' . $usuario->email }}">
-                        <strong>Mudar Senha.</strong><br>
+                        <strong>{{ $url . 'alterarsenha?hash=' . $hash . '&email=' . $usuario->email }}</strong><br>
                     </a>
-                    {{ $url . 'alterarsenha?hash=' . $hash . '&email=' . $usuario->email }}
-                    Caso não tenha solicitado a mudança, favor disconsiderar.
+                    Caso não tenha solicitado a mudança, favor desconsiderar.
                 </div>
                 <div class="card-footer text-center border-primary mb-3 alert alert-primary">
                     <h4>&copy; 2019 edubahia.carlos</h4>
